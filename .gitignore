@@ -1,5 +1,6 @@
 /.idea
 /src/web/.idea
+/.vs/*
 /.vscode/*
 !/.vscode/launch.json
 /.vagrant
