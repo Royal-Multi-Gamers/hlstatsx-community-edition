@@ -2,6 +2,8 @@
 
 A full rebase of HLStatsX:CE to **Laravel 13**, replacing the legacy PHP 5 web frontend with a modern stack while keeping the same MySQL schema and Perl daemon unchanged.
 
+> **Perl daemon:** the Perl scripts used are from [SnipeZilla/HLSTATS-2](https://github.com/SnipeZilla/HLSTATS-2).
+
 ## Stack
 
 | Layer | Technology |
