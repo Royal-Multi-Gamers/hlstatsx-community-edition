@@ -49,7 +49,7 @@ class Player extends Model
     }
 
     // Relations
-    public function clan(): BelongsTo
+    public function clanRelation(): BelongsTo
     {
         return $this->belongsTo(Clan::class, 'clan', 'clanId');
     }

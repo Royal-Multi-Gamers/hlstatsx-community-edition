@@ -152,8 +152,8 @@
                         <tr style="border-top:1px solid var(--border);">
                             <td style="padding:4px 6px; color:var(--text-secondary); width:44%;">{{ __('Member of Clan:') }}</td>
                             <td style="padding:4px 6px; color:var(--text-heading);">
-                                @if($player->clan)
-                                    <a href="{{ route('clans.show', $player->clan->clanId) }}" class="hlx-link">{{ $player->clan->tag }}</a>
+                                @if($player->clanRelation)
+                                    <a href="{{ route('clans.show', $player->clanRelation->clanId) }}" class="hlx-link">{{ $player->clanRelation->tag }}</a>
                                 @else
                                     {{ __('(None)') }}
                                 @endif

@@ -41,7 +41,7 @@ class StatsService
         $allowedSorts = ['skill', 'kills', 'deaths', 'headshots', 'connection_time'];
         $sort = in_array($sort, $allowedSorts) ? $sort : 'skill';
 
-        $query = Player::with(['clan', 'uniqueIds'])
+        $query = Player::with(['clanRelation', 'uniqueIds'])
             ->forGame($game)
             ->ranked();
 
@@ -62,7 +62,7 @@ class StatsService
      */
     public function getPlayerProfile(int $playerId): array
     {
-        $player = Player::with(['clan'])
+        $player = Player::with(['clanRelation'])
             ->findOrFail($playerId);
 
         // Weapons ranked by kills — with modifier, kill%, headshot%, hpk
