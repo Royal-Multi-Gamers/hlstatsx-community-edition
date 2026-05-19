@@ -197,3 +197,135 @@
     text-decoration: none;
   }
 }
+
+/* ============================================================
+   Responsive — Mobile
+   ============================================================ */
+
+/* Hamburger toggle button — hidden on desktop */
+.hlx-hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius-sm);
+  padding: 5px 10px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Mobile nav drawer */
+.hlx-mobile-nav {
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.hlx-mobile-nav a {
+  color: var(--text-primary);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  display: block;
+}
+
+.hlx-mobile-nav a:last-of-type {
+  border-bottom: none;
+}
+
+.hlx-mobile-nav .hlx-mobile-lang {
+  display: flex;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+/* Admin sidebar toggle — hidden on desktop */
+.hlx-admin-toggle {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius-sm);
+  padding: 5px 12px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  margin-bottom: 14px;
+}
+
+@media (max-width: 768px) {
+  /* Tighter container padding */
+  .hlx-container {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  /* Tables scroll horizontally instead of breaking layout */
+  .hlx-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Tighter table cells on mobile */
+  .hlx-table td,
+  .hlx-table th {
+    padding: 4px 6px;
+  }
+
+  /* Header desktop nav hidden, hamburger shown */
+  .hlx-header-desktop { display: none !important; }
+  .hlx-hamburger      { display: flex !important; }
+
+  /* Game nav tabs: smaller, tighter */
+  .hlx-nav-tab {
+    padding: 3px 10px;
+    font-size: 11px;
+  }
+
+  /* Breadcrumb wraps on small screens */
+  .hlx-breadcrumb {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  /* Admin: show sidebar toggle button */
+  .hlx-admin-toggle { display: flex !important; }
+
+  /* Admin sidebar slides in from the left on mobile */
+  .admin-sidebar {
+    position: fixed !important;
+    top: 0;
+    left: -260px;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    z-index: 300;
+    overflow-y: auto;
+    transition: left 0.25s ease;
+  }
+
+  .admin-sidebar.open {
+    left: 0 !important;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.6);
+  }
+
+  /* Admin content: prevent it from being squished */
+  .admin-content {
+    min-width: 0;
+    overflow-x: auto;
+  }
+
+  /* Maps reduce height */
+  .leaflet-container {
+    min-height: 220px;
+  }
+}

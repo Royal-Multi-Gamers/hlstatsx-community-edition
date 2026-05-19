@@ -52,10 +52,14 @@
 {{-- Header --}}
 <x-layout.header :adminMode="true" />
 
-<div style="display:flex; min-height:calc(100vh - var(--header-height));">
+<div x-data="{ sidebarOpen: false }" style="display:flex; min-height:calc(100vh - var(--header-height)); position:relative;">
+
+    {{-- Mobile overlay (closes sidebar on tap outside) --}}
+    <div x-show="sidebarOpen" @click="sidebarOpen = false" x-transition
+         style="position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:299;"></div>
 
     {{-- Admin sidebar --}}
-    <nav class="admin-sidebar">
+    <nav class="admin-sidebar" :class="{ open: sidebarOpen }">
         <div class="sidebar-group">Dashboard</div>
         <a href="{{ route('admin.dashboard') }}" @class(['active' => request()->routeIs('admin.dashboard')])>
             Overview
@@ -81,7 +85,11 @@
     </nav>
 
     {{-- Main content area --}}
-    <div style="flex:1; padding:16px; overflow-x:auto;">
+    <div class="admin-content" style="flex:1; padding:16px; overflow-x:auto; min-width:0;">
+        {{-- Mobile sidebar toggle --}}
+        <button class="hlx-admin-toggle" @click="sidebarOpen = true">
+            &#9776; {{ __('Menu') }}
+        </button>
         @if(session('success'))
             <div style="background-color:#1a4731; color:#3fb950; padding:8px 12px; border-radius:4px; margin-bottom:12px; border:1px solid #2a6741;">
                 {{ session('success') }}
