@@ -1,0 +1,152 @@
+<?php
+
+namespace App\Http\Controllers\Frontend;
+
+use App\Http\Controllers\Controller;
+use App\Models\Clan;
+use App\Models\Player;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class ClanController extends Controller
+{
+    public function index(Request $request)
+    {
+        $game  = $request->query('game', '');
+        $sort  = $request->query('sort', 'avg_skill');
+
+        $allowedSorts = ['avg_skill', 'kills', 'deaths', 'headshots', 'members_count', 'total_connection_time', 'name', 'tag'];
+        $sort = in_array($sort, $allowedSorts) ? $sort : 'avg_skill';
+
+        $clans = Clan::visible()
+            ->when($game, fn($q) => $q->forGame($game))
+            ->addSelect([
+                'kills'                 => Player::selectRaw('COALESCE(SUM(kills), 0)')
+                                                 ->whereColumn('clan', 'hlstats_Clans.clanId')
+                                                 ->where('hideranking', 0),
+                'deaths'               => Player::selectRaw('COALESCE(SUM(deaths), 0)')
+                                                 ->whereColumn('clan', 'hlstats_Clans.clanId')
+                                                 ->where('hideranking', 0),
+                'headshots'            => Player::selectRaw('COALESCE(SUM(headshots), 0)')
+                                                 ->whereColumn('clan', 'hlstats_Clans.clanId')
+                                                 ->where('hideranking', 0),
+                'members_count'        => Player::selectRaw('COUNT(*)')
+                                                 ->whereColumn('clan', 'hlstats_Clans.clanId')
+                                                 ->where('hideranking', 0),
+                'avg_skill'            => Player::selectRaw('COALESCE(ROUND(AVG(skill)), 0)')
+                                                 ->whereColumn('clan', 'hlstats_Clans.clanId')
+                                                 ->where('hideranking', 0),
+                'avg_activity'         => Player::selectRaw('COALESCE(TRUNCATE(AVG(activity), 2), 0)')
+                                                 ->whereColumn('clan', 'hlstats_Clans.clanId')
+                                                 ->where('hideranking', 0),
+                'total_connection_time' => Player::selectRaw('COALESCE(SUM(connection_time), 0)')
+                                                 ->whereColumn('clan', 'hlstats_Clans.clanId')
+                                                 ->where('hideranking', 0),
+            ])
+            ->orderByDesc($sort)
+            ->paginate(50);
+
+        return view('frontend.clans.index', compact('clans', 'game', 'sort'));
+    }
+
+    public function show(int $id)
+    {
+        $clan     = Clan::findOrFail($id);
+        $game     = $clan->game;
+        $realgame = DB::table('hlstats_Games')->where('code', $game)->value('realgame') ?? $game;
+
+        $members = $clan->players()
+            ->ranked()
+            ->orderByDesc('skill')
+            ->get();
+
+        // --- Weapons tab ---
+        $totalKills = DB::table('hlstats_Events_Frags as f')
+            ->join('hlstats_Players as p', 'f.killerId', '=', 'p.playerId')
+            ->where('p.clan', $id)
+            ->count();
+        $totalKills = max(1, $totalKills);
+
+        $weapons = DB::table('hlstats_Events_Frags as f')
+            ->join('hlstats_Players as p', 'f.killerId', '=', 'p.playerId')
+            ->leftJoin('hlstats_Weapons as w', function ($j) use ($game) {
+                $j->on('w.code', '=', 'f.weapon')->where('w.game', $game);
+            })
+            ->where('p.clan', $id)
+            ->groupBy('f.weapon', 'w.name', 'w.modifier')
+            ->selectRaw('f.weapon, IFNULL(w.name, f.weapon) AS weapon_name,
+                IFNULL(w.modifier, 1.00) AS modifier,
+                COUNT(*) AS kills,
+                ROUND(COUNT(*) / ? * 100, 2) AS kpercent,
+                SUM(f.headshot = 1) AS headshots,
+                IF(COUNT(*) > 0, ROUND(SUM(f.headshot=1)/COUNT(*), 4), 0) AS hpk', [$totalKills])
+            ->orderByDesc('kills')
+            ->get();
+
+        // --- Maps tab ---
+        $maps = DB::table('hlstats_Events_Frags as f')
+            ->join('hlstats_Players as kp', 'f.killerId', '=', 'kp.playerId')
+            ->where('kp.clan', $id)
+            ->groupBy('f.map')
+            ->selectRaw("IF(f.map='','(Unaccounted)',f.map) AS map, COUNT(*) AS kills,
+                SUM(f.headshot=1) AS headshots,
+                ROUND(COUNT(*)/?*100,2) AS kpercent,
+                IF(COUNT(*)>0, ROUND(SUM(f.headshot=1)/COUNT(*),4), 0) AS hpk", [$totalKills])
+            ->orderByDesc('kills')
+            ->get();
+
+        // add deaths per map
+        $deathMap = DB::table('hlstats_Events_Frags as f')
+            ->join('hlstats_Players as vp', 'f.victimId', '=', 'vp.playerId')
+            ->where('vp.clan', $id)
+            ->groupBy('f.map')
+            ->selectRaw("IF(f.map='','(Unaccounted)',f.map) AS map, COUNT(*) AS deaths")
+            ->get()->keyBy('map');
+
+        $maps = $maps->map(function ($row) use ($deathMap) {
+            $deaths       = $deathMap[$row->map]->deaths ?? 0;
+            $row->deaths  = $deaths;
+            $row->kd      = $deaths > 0 ? round($row->kills / $deaths, 2) : $row->kills;
+            return $row;
+        });
+
+        // --- Teams tab ---
+        $totalTeamJoins = DB::table('hlstats_Events_ChangeTeam as ct')
+            ->join('hlstats_Players as p', 'ct.playerId', '=', 'p.playerId')
+            ->where('p.clan', $id)
+            ->count();
+        $totalTeamJoins = max(1, $totalTeamJoins);
+
+        $teams = DB::table('hlstats_Events_ChangeTeam as ct')
+            ->join('hlstats_Players as p', 'ct.playerId', '=', 'p.playerId')
+            ->where('p.clan', $id)
+            ->groupBy('ct.team')
+            ->selectRaw('ct.team AS name, COUNT(*) AS teamcount,
+                ROUND(COUNT(*)/?*100,2) AS percent', [$totalTeamJoins])
+            ->orderByDesc('teamcount')
+            ->get();
+
+        // --- Actions tab ---
+        $actions = DB::select("
+            SELECT a.id AS action_id, a.code, a.description, SUM(e.obj_count) AS obj_count, SUM(e.obj_bonus) AS obj_bonus
+            FROM hlstats_Actions a
+            LEFT JOIN (
+                SELECT actionId, COUNT(*) AS obj_count, SUM(bonus) AS obj_bonus, playerId
+                FROM hlstats_Events_PlayerActions GROUP BY actionId, playerId
+                UNION ALL
+                SELECT actionId, COUNT(*) AS obj_count, SUM(bonus) AS obj_bonus, playerId
+                FROM hlstats_Events_PlayerPlayerActions GROUP BY actionId, playerId
+            ) e ON e.actionId = a.id
+            LEFT JOIN hlstats_Players p ON p.playerId = e.playerId
+            WHERE p.clan = ? OR p.clan IS NULL
+            GROUP BY a.id, a.code, a.description
+            HAVING obj_count > 0
+            ORDER BY obj_count DESC
+        ", [$id]);
+
+        return view('frontend.clans.show', compact(
+            'clan', 'game', 'realgame', 'members',
+            'weapons', 'maps', 'teams', 'actions'
+        ));
+    }
+}

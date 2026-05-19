@@ -1,0 +1,53 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Server;
+use App\Models\ServerConfig;
+use Illuminate\Http\Request;
+
+class AdminServerConfigController extends Controller
+{
+    public function index(Request $request)
+    {
+        $servers  = Server::orderBy('name')->get();
+        $serverId = $request->input('server', $servers->first()?->serverId);
+        $configs  = ServerConfig::where('serverId', $serverId)->orderBy('parameter')->get();
+        return view('admin.server-config.index', compact('servers', 'serverId', 'configs'));
+    }
+
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'serverId'  => ['required', 'integer', 'exists:hlstats_Servers,serverId'],
+            'parameter' => ['required', 'string', 'max:50'],
+            'value'     => ['required', 'string', 'max:128'],
+        ]);
+
+        ServerConfig::updateOrCreate(
+            ['serverId' => $data['serverId'], 'parameter' => $data['parameter']],
+            ['value' => $data['value']]
+        );
+
+        return redirect()->route('admin.server-config.index', ['server' => $data['serverId']])->with('success', 'Config saved.');
+    }
+
+    public function update(Request $request, int $id)
+    {
+        $config = ServerConfig::findOrFail($id);
+        $data   = $request->validate([
+            'value' => ['required', 'string', 'max:128'],
+        ]);
+        $config->update($data);
+        return redirect()->route('admin.server-config.index', ['server' => $config->serverId])->with('success', 'Config updated.');
+    }
+
+    public function destroy(int $id)
+    {
+        $config   = ServerConfig::findOrFail($id);
+        $serverId = $config->serverId;
+        $config->delete();
+        return redirect()->route('admin.server-config.index', ['server' => $serverId])->with('success', 'Config deleted.');
+    }
+}

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ $title ?? config('services.hlstats.site_name', 'HLStatsX: CE') }}</title>
+
+    {{-- Google Fonts (Inter) --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    {{-- Leaflet CSS --}}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    {{-- Vite assets --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{-- Inject active theme CSS variables --}}
+    <style>
+      :root {
+        {!! app(\App\Services\ThemeService::class)->getCssVariables(app(\App\Services\ThemeService::class)->getActive()) !!}
+      }
+    </style>
+
+    {{ $head ?? '' }}
+</head>
+<body>
+
+{{-- Header --}}
+<x-layout.header />
+
+{{-- Breadcrumb --}}
+@isset($breadcrumb)
+    <x-layout.breadcrumb :crumbs="$breadcrumb" />
+@endisset
+
+{{-- Game navigation tabs --}}
+@isset($gameNav)
+    <x-layout.game-nav :game="$gameNav" :active="$activeTab ?? null" />
+@endisset
+
+{{-- Main content --}}
+<main class="hlx-container" style="padding-top:12px; padding-bottom:24px;">
+    {{ $slot }}
+</main>
+
+{{-- Footer --}}
+<x-layout.footer />
+
+</body>
+</html>

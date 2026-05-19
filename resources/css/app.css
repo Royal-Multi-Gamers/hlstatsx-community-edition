@@ -1,0 +1,199 @@
+@import 'tailwindcss';
+
+/* ============================================================
+   HLStatsX: CE — CSS Variables from theme (injected via PHP)
+   All colors must use var(--*) — no hardcoded values allowed
+   ============================================================ */
+
+@layer base {
+  body {
+    background-color: var(--bg-body);
+    color: var(--text-primary);
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height);
+  }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--link-hover);
+    text-decoration: underline;
+  }
+}
+
+@layer components {
+  /* Layout */
+  .hlx-container {
+    max-width: var(--container-max-width);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  /* Surfaces */
+  .hlx-surface     { background-color: var(--bg-surface); }
+  .hlx-surface-alt { background-color: var(--bg-surface-alt); }
+
+  /* Table rows */
+  .hlx-row-even    { background-color: var(--bg-row-even); }
+  .hlx-row-odd     { background-color: var(--bg-row-odd); }
+
+  /* Borders */
+  .hlx-border      { border-color: var(--border); }
+
+  /* Text */
+  .hlx-text        { color: var(--text-primary); }
+  .hlx-muted       { color: var(--text-secondary); }
+  .hlx-heading     { color: var(--text-heading); }
+
+  /* Links */
+  .hlx-link        { color: var(--link); }
+  .hlx-link:hover  { color: var(--link-hover); }
+
+  /* Navigation tabs */
+  .hlx-nav-tab {
+    background-color: var(--bg-nav-tab);
+    color: var(--text-primary);
+    border-radius: var(--border-radius-pill);
+    padding: 4px 14px;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    transition: background-color 0.15s;
+    white-space: nowrap;
+  }
+
+  .hlx-nav-tab:hover,
+  .hlx-nav-tab.active {
+    background-color: var(--bg-nav-tab-active);
+    color: #fff;
+    text-decoration: none;
+  }
+
+  /* Buttons */
+  .hlx-btn-gold {
+    background-color: var(--accent-primary);
+    color: #fff;
+    border-radius: var(--border-radius-pill);
+    padding: 3px 12px;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    display: inline-block;
+    white-space: nowrap;
+    border: none;
+    cursor: pointer;
+  }
+
+  .hlx-btn-green {
+    background-color: var(--accent-primary);
+    color: #fff;
+    border-radius: var(--border-radius-pill);
+    padding: 3px 12px;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    display: inline-block;
+    white-space: nowrap;
+    border: none;
+    cursor: pointer;
+  }
+
+  /* Section titles */
+  .hlx-section-title {
+    background-color: var(--bg-surface-alt);
+    color: var(--text-heading);
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+    font-size: var(--font-size-base);
+    font-weight: normal;
+  }
+
+  /* Tables */
+  .hlx-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-base);
+  }
+
+  .hlx-table th {
+    background-color: var(--bg-surface-alt);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-size: var(--font-size-sm);
+    padding: var(--table-padding-y) var(--table-padding-x);
+    border-bottom: 1px solid var(--border);
+    font-weight: 500;
+    text-align: left;
+  }
+
+  .hlx-table td {
+    padding: var(--table-padding-y) var(--table-padding-x);
+    border-bottom: 1px solid var(--border);
+    height: var(--row-height);
+    white-space: nowrap;
+  }
+
+  .hlx-table tbody tr:nth-child(even) td { background-color: var(--bg-row-even); }
+  .hlx-table tbody tr:nth-child(odd) td  { background-color: var(--bg-row-odd); }
+  .hlx-table tbody tr:hover td { filter: brightness(1.15); }
+
+  /* Activity bars */
+  .hlx-activity-cell {
+    background-color: var(--bg-body);
+    padding: 4px var(--table-padding-x) !important;
+  }
+
+  .hlx-activity-bar {
+    height: 10px;
+    border-radius: 2px;
+    min-width: 2px;
+  }
+
+  .hlx-activity-high { background-color: var(--activity-high); }
+  .hlx-activity-mid  { background-color: var(--activity-mid); }
+  .hlx-activity-low  { background-color: var(--activity-low); }
+
+  /* Status indicators */
+  .hlx-status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .hlx-status-online  { background-color: var(--status-online); }
+  .hlx-status-offline { background-color: var(--status-offline); }
+
+  /* Header */
+  .hlx-header {
+    background-color: var(--bg-header);
+    height: var(--header-height);
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Breadcrumb */
+  .hlx-breadcrumb {
+    background-color: var(--bg-surface-alt);
+    color: var(--text-secondary);
+    padding: 6px 10px;
+    font-size: var(--font-size-sm);
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Pagination */
+  .hlx-page-link {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: var(--border-radius-sm);
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+  }
+
+  .hlx-page-link:hover,
+  .hlx-page-link.active {
+    color: var(--link);
+    text-decoration: none;
+  }
+}
