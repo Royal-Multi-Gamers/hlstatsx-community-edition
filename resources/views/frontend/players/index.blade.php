@@ -26,7 +26,17 @@
             <button type="submit" class="hlx-btn-green">Search</button>
         </div>
 
-        <div style="display:flex; align-items:center; gap:8px;">
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span class="hlx-muted" style="font-size:var(--font-size-sm);">&gt;&gt; Period:</span>
+            <select name="period"
+                    style="background-color:var(--bg-surface); color:var(--text-primary); border:1px solid var(--border); border-radius:var(--border-radius-sm); padding:3px 6px; font-size:var(--font-size-sm);">
+                <option value="0" @selected(($period ?? 0) == 0)>{{ __('Global') }}</option>
+                <option value="1" @selected(($period ?? 0) == 1)>{{ __('Yesterday') }}</option>
+                <option value="2" @selected(($period ?? 0) == 2)>{{ __('Last Weekend') }}</option>
+                <option value="3" @selected(($period ?? 0) == 3)>{{ __('Last 7 Days') }}</option>
+                <option value="4" @selected(($period ?? 0) == 4)>{{ __('Last 28 Days') }}</option>
+            </select>
+
             <span class="hlx-muted" style="font-size:var(--font-size-sm);">&gt;&gt; Ranking View:</span>
             <select name="view"
                     style="background-color:var(--bg-surface); color:var(--text-primary); border:1px solid var(--border); border-radius:var(--border-radius-sm); padding:3px 6px; font-size:var(--font-size-sm);">

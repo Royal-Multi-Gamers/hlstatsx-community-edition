@@ -203,7 +203,13 @@
                         </tr>
                         <tr style="border-top:1px solid var(--border);">
                             <td style="padding:4px 6px; color:var(--text-secondary);">{{ __('Last Ping:') }}</td>
-                            <td style="padding:4px 6px; color:var(--text-heading);">-</td>
+                            <td style="padding:4px 6px; color:var(--text-heading);">
+                                @if(($livePing ?? 0) > 0)
+                                    {{ $livePing }} ms
+                                @else
+                                    -
+                                @endif
+                            </td>
                         </tr>
                         <tr style="border-top:1px solid var(--border);">
                             <td style="padding:4px 6px; color:var(--text-secondary);">{{ __('Favorite Server:') }}*</td>

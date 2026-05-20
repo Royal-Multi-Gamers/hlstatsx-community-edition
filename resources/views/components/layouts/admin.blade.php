@@ -96,7 +96,7 @@
             </div>
 
             {{-- Content --}}
-            <div x-data="{ open: {{ request()->routeIs('admin.players.*', 'admin.clans.*', 'admin.servers.*', 'admin.games.*', 'admin.weapons.*', 'admin.bans.*') ? 'true' : 'false' }} }">
+            <div x-data="{ open: {{ request()->routeIs('admin.players.*', 'admin.clans.*', 'admin.servers.*', 'admin.games.*', 'admin.weapons.*', 'admin.bans.*', 'admin.voicecomm.*') ? 'true' : 'false' }} }">
                 <button @click="open = !open" class="sidebar-group-btn">
                     <span>{{ __('Content') }}</span>
                     <svg :class="{ 'collapsed': !open }" class="sidebar-chevron" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3.5L5 6.5L8 3.5"/></svg>
@@ -108,6 +108,7 @@
                     <a href="{{ route('admin.games.index') }}" @class(['active' => request()->routeIs('admin.games.*')])>{{ __('Games') }}</a>
                     <a href="{{ route('admin.weapons.index') }}" @class(['active' => request()->routeIs('admin.weapons.*')])>{{ __('Weapons') }}</a>
                     <a href="{{ route('admin.bans.index') }}" @class(['active' => request()->routeIs('admin.bans.*')])>{{ __('Bans') }}</a>
+                    <a href="{{ route('admin.voicecomm.index') }}" @class(['active' => request()->routeIs('admin.voicecomm.*')])>{{ __('Voice Servers') }}</a>
                 </div>
             </div>
 

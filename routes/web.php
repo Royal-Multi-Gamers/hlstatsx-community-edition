@@ -18,6 +18,7 @@ use App\Http\Controllers\Frontend\ServerController;
 use App\Http\Controllers\Frontend\RoleController;
 use App\Http\Controllers\Frontend\IngameController;
 use App\Http\Controllers\Frontend\WeaponController;
+use App\Http\Controllers\Frontend\VoiceCommController;
 use App\Http\Controllers\LocaleController;
 use Illuminate\Support\Facades\Route;
 
@@ -73,6 +74,10 @@ Route::view('/help', 'frontend.help')->name('help');
 Route::get('/actions', [ActionController::class, 'index'])->name('actions.index');
 Route::get('/actions/{id}', [ActionController::class, 'show'])->name('actions.show')->where('id', '[0-9]+');
 Route::get('/bans', [BanController::class, 'index'])->name('bans.index');
+Route::get('/voicecomm', [VoiceCommController::class, 'index'])->name('voicecomm.index');
+Route::get('/voicecomm/discord/{id}', [VoiceCommController::class, 'discord'])->name('voicecomm.discord')->where('id', '[0-9]+');
+Route::get('/voicecomm/teamspeak/{id}', [VoiceCommController::class, 'teamspeak'])->name('voicecomm.teamspeak')->where('id', '[0-9]+');
+Route::get('/voicecomm/steam/{id}', [VoiceCommController::class, 'steam'])->name('voicecomm.steam')->where('id', '[0-9]+');
 
 // Ingame overlay interface (minimal HTML for in-game MOTD/HUD)
 Route::prefix('ingame')->name('ingame.')->group(function () {

@@ -9,6 +9,7 @@ use App\Models\Server;
 use App\Models\Award;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\LengthAwarePaginator as ManualPaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -31,15 +32,22 @@ class StatsService
 
     /**
      * Get paginated list of top players, optionally filtered.
+     * period: 0=global, 1=yesterday, 2=last weekend, 3=last 7 days, 4=last 28 days
      */
     public function getTopPlayers(
         string $game,
         int $perPage = 50,
         array $filters = [],
-        string $sort = 'skill'
+        string $sort = 'skill',
+        int $period = 0
     ): LengthAwarePaginator {
-        $allowedSorts = ['skill', 'kills', 'deaths', 'headshots', 'connection_time'];
+        $allowedSorts = ['skill', 'kills', 'deaths', 'headshots', 'connection_time', 'kd_ratio', 'hs_percent', 'accuracy'];
         $sort = in_array($sort, $allowedSorts) ? $sort : 'skill';
+
+        // For period-filtered rankings, use raw SQL against Players_History
+        if ($period > 0) {
+            return $this->getTopPlayersFiltered($game, $perPage, $filters, $sort, $period);
+        }
 
         $query = Player::with(['clanRelation', 'uniqueIds'])
             ->forGame($game)
@@ -55,6 +63,99 @@ class StatsService
         }
 
         return $query->orderByDesc($sort)->paginate($perPage)->withQueryString();
+    }
+
+    /**
+     * Time-filtered player ranking using Players_History table.
+     */
+    private function getTopPlayersFiltered(
+        string $game,
+        int $perPage,
+        array $filters,
+        string $sort,
+        int $period
+    ): ManualPaginator {
+        $dateFilter = match ($period) {
+            1 => "h.eventTime >= CURDATE() - INTERVAL 1 DAY AND h.eventTime < CURDATE()",
+            2 => "YEARWEEK(h.eventTime, 1) = YEARWEEK(CURDATE() - INTERVAL 1 WEEK, 1) AND WEEKDAY(h.eventTime) IN (5,6)",
+            3 => "h.eventTime >= NOW() - INTERVAL 7 DAY",
+            4 => "h.eventTime >= NOW() - INTERVAL 28 DAY",
+            default => "1=1",
+        };
+
+        // Map sort aliases used in view to SQL column names
+        $sqlSort = match ($sort) {
+            'kd_ratio'  => 'kd_ratio',
+            'hs_percent' => 'hs_percent',
+            'accuracy'  => 'accuracy',
+            default     => $sort,
+        };
+
+        $gameParam  = $game;
+        $searchParam = $filters['search'] ?? null;
+        $countryParam = $filters['country'] ?? null;
+
+        $searchWhere  = $searchParam  ? "AND p.lastName LIKE ?" : '';
+        $countryWhere = $countryParam ? "AND p.country = ?"     : '';
+
+        $bindings = [$game];
+        if ($searchParam)  $bindings[] = '%' . $searchParam . '%';
+        if ($countryParam) $bindings[] = $countryParam;
+
+        $innerSql = "
+            SELECT
+                a.playerId,
+                p.lastName,
+                p.flag,
+                p.country,
+                p.activity,
+                SUM(a.connection_time) AS connection_time,
+                SUM(a.kills)           AS kills,
+                SUM(a.deaths)          AS deaths,
+                SUM(a.skill_change)    AS skill,
+                SUM(a.shots)           AS shots,
+                SUM(a.hits)            AS hits,
+                SUM(a.headshots)       AS headshots,
+                ROUND(IF(SUM(a.deaths)=0, SUM(a.kills), SUM(a.kills)/SUM(a.deaths)), 2) AS kd_ratio,
+                ROUND(IF(SUM(a.kills)=0, 0, SUM(a.headshots)/SUM(a.kills)*100), 2)      AS hs_percent,
+                ROUND(IF(SUM(a.shots)=0, 0, SUM(a.hits)/SUM(a.shots)*100), 1)           AS accuracy
+            FROM hlstats_Players_History a
+            JOIN hlstats_Players p ON p.playerId = a.playerId
+            WHERE {$dateFilter}
+            AND a.game = ?
+            AND p.hideranking = 0
+            AND p.lastAddress <> ''
+            {$searchWhere}
+            {$countryWhere}
+            GROUP BY a.playerId, p.lastName, p.flag, p.country, p.activity
+        ";
+
+        // Bindings: date-filter params first (none needed), then game, optional search/country
+        $innerBindings = array_merge([$gameParam], array_slice($bindings, 1));
+
+        $countResult = DB::select(
+            "SELECT COUNT(*) AS total FROM ({$innerSql}) AS sub",
+            $innerBindings
+        );
+        $total = (int) ($countResult[0]->total ?? 0);
+
+        $page    = (int) request()->input('page', 1);
+        $offset  = ($page - 1) * $perPage;
+
+        $rows = DB::select(
+            "{$innerSql} ORDER BY {$sqlSort} DESC LIMIT {$perPage} OFFSET {$offset}",
+            $innerBindings
+        );
+
+        $paginator = new ManualPaginator(
+            collect($rows),
+            $total,
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        return $paginator;
     }
 
     /**
@@ -238,6 +339,11 @@ class StatsService
             ->where('player_id', $playerId)
             ->exists();
 
+        // Live ping (only meaningful when player is online)
+        $livePing = $isOnline
+            ? (int) DB::table('hlstats_Livestats')->where('player_id', $playerId)->value('ping')
+            : 0;
+
         // Steam unique ID (raw string, e.g. STEAM_0:1:12345)
         $steamUniqueId = DB::table('hlstats_PlayerUniqueIds')
             ->where('playerId', $playerId)
@@ -298,7 +404,7 @@ class StatsService
         return compact(
             'player', 'topWeapons', 'topMaps', 'topVictims', 'topKillers',
             'rank', 'favoriteServer', 'awardsCount',
-            'isOnline', 'steamUniqueId', 'isBanned',
+            'isOnline', 'livePing', 'steamUniqueId', 'isBanned',
             'allRanks', 'nextRank', 'aliases', 'ribbons', 'playerGlobalAwards', 'rankHistory',
             'playerTeams', 'playerActions', 'playerPlayerActions', 'playerServers'
         );

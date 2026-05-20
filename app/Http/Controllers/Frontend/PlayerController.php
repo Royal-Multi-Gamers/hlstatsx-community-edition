@@ -24,12 +24,17 @@ class PlayerController extends Controller
         $sort    = $request->query('sort', 'skill');
         $view    = $request->query('view', 'total');
         $country = $request->query('country');
+        $period  = (int) $request->query('period', 0);
+        if (!in_array($period, [0, 1, 2, 3, 4])) {
+            $period = 0;
+        }
 
         $players = $this->stats->getTopPlayers(
             game: $game,
             perPage: 50,
             filters: array_filter(['search' => $search, 'country' => $country]),
             sort: $sort,
+            period: $period,
         );
 
         $maxSkill = $players->first()?->skill ?? 1;
@@ -57,7 +62,7 @@ class PlayerController extends Controller
         $theme   = $this->theme->getActive();
         $tileUrl = $theme['charts']['map-tiles'] ?? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
-        return view('frontend.players.index', compact('players', 'game', 'search', 'sort', 'view', 'maxSkill', 'country', 'playerMarkers', 'tileUrl'));
+        return view('frontend.players.index', compact('players', 'game', 'search', 'sort', 'view', 'maxSkill', 'country', 'playerMarkers', 'tileUrl', 'period'));
     }
 
     public function show(int $id)

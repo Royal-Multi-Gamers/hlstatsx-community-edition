@@ -1,6 +1,7 @@
 <x-layouts.app :title="config('services.hlstats.site_name')" :breadcrumb="['HLStatsX' => route('home')]">
 
     {{-- Voice Server Section --}}
+    @if(count($voiceServers) > 0)
     <div class="hlx-surface" style="margin-bottom:16px; border:1px solid var(--border); border-radius:var(--border-radius-md); overflow:hidden;">
         <x-ui.section-title title="{{ __('Voice Server') }}" />
         <table class="hlx-table">
@@ -15,25 +16,67 @@
                 </tr>
             </thead>
             <tbody>
+                @foreach($voiceServers as $vs)
+                @php
+                    $typeIcon = match((int)$vs->serverType) {
+                        0 => '🔊', 1 => '🎮', 2 => '💬', default => '📡'
+                    };
+                    // Address / link column
+                    if ($vs->inviteUrl) {
+                        $addrHtml = '<a href="' . e($vs->inviteUrl) . '" class="hlx-link" target="_blank" rel="noopener">' . e($vs->displayAddr ?? $vs->addr) . '</a>';
+                    } elseif ((int)$vs->serverType === 0) {
+                        $tsLink = 'ts3server://' . e($vs->addr) . '?port=' . (int)$vs->UDPPort . (!empty($vs->password) ? '&password=' . urlencode($vs->password) : '');
+                        $addrHtml = '<a href="' . $tsLink . '" class="hlx-link">' . e(($vs->displayAddr ?? $vs->addr . ':' . $vs->UDPPort)) . '</a>';
+                    } elseif ((int)$vs->serverType === 1) {
+                        $steamUrl = ctype_digit((string)$vs->addr)
+                            ? 'https://steamcommunity.com/gid/' . $vs->addr
+                            : 'https://steamcommunity.com/groups/' . rawurlencode($vs->addr);
+                        $addrHtml = '<a href="' . e($steamUrl) . '" class="hlx-link" target="_blank" rel="noopener">' . e($vs->displayAddr ?? $vs->addr) . '</a>';
+                    } else {
+                        $addrHtml = '<span class="hlx-muted">—</span>';
+                    }
+                    // Detail page link
+                    $detailRoute = match((int)$vs->serverType) {
+                        0 => route('voicecomm.teamspeak', $vs->serverId),
+                        1 => route('voicecomm.steam',     $vs->serverId),
+                        2 => route('voicecomm.discord',   $vs->serverId),
+                        default => null,
+                    };
+                @endphp
                 <tr>
-                    <td class="hlx-text">Discord</td>
-                    <td><a href="https://discord.gg/rmg" class="hlx-link" target="_blank">discord.gg/rmg</a></td>
-                    <td class="hlx-muted">—</td>
-                    <td class="hlx-text">54</td>
-                    <td class="hlx-text">55/186</td>
-                    <td class="hlx-muted">Community voice server</td>
+                    <td class="hlx-text">
+                        <span style="margin-right:4px;">{{ $typeIcon }}</span>
+                        @if($detailRoute)
+                            <a href="{{ $detailRoute }}" class="hlx-link">{{ $vs->name }}</a>
+                        @else
+                            {{ $vs->name }}
+                        @endif
+                    </td>
+                    <td>{!! $addrHtml !!}</td>
+                    <td class="hlx-muted">
+                        @if((int)$vs->serverType === 0 && !empty($vs->password))
+                            {{ $vs->password }}
+                        @else
+                            —
+                        @endif
+                    </td>
+                    <td class="hlx-text">
+                        {{ $vs->channels !== null ? $vs->channels : '—' }}
+                    </td>
+                    <td class="hlx-text">
+                        @if($vs->slotsUsed !== null)
+                            {{ $vs->slotsUsed }}{{ $vs->slotsMax ? '/' . number_format($vs->slotsMax) : '' }}
+                        @else
+                            —
+                        @endif
+                    </td>
+                    <td class="hlx-muted">{{ $vs->descr }}</td>
                 </tr>
-                <tr>
-                    <td class="hlx-text">Steam Group</td>
-                    <td><a href="https://steamcommunity.com/groups/rmg" class="hlx-link" target="_blank">Royal Multi Gamers</a></td>
-                    <td class="hlx-muted">—</td>
-                    <td class="hlx-text">54</td>
-                    <td class="hlx-text">694/5929</td>
-                    <td class="hlx-muted">Steam community group</td>
-                </tr>
+                @endforeach
             </tbody>
         </table>
     </div>
+    @endif
 
     {{-- World Map --}}
     @if(!empty($serverMarkers) || !empty($playerMarkers))

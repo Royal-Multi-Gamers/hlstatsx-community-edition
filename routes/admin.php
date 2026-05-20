@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\AdminServerController;
 use App\Http\Controllers\Admin\AdminTeamController;
 use App\Http\Controllers\Admin\AdminThemeController;
 use App\Http\Controllers\Admin\AdminToolsController;
+use App\Http\Controllers\Admin\AdminVoiceCommController;
 use App\Http\Controllers\Admin\AdminWeaponController;
 use Illuminate\Support\Facades\Route;
 
@@ -96,6 +97,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/', [AdminBanController::class, 'index'])->name('index');
             Route::post('/', [AdminBanController::class, 'store'])->name('store');
             Route::delete('/{id}', [AdminBanController::class, 'destroy'])->name('destroy');
+        });
+
+        // Voice Servers (TeamSpeak 3, Discord)
+        Route::prefix('voicecomm')->name('voicecomm.')->group(function () {
+            Route::get('/', [AdminVoiceCommController::class, 'index'])->name('index');
+            Route::get('/create', [AdminVoiceCommController::class, 'create'])->name('create');
+            Route::post('/', [AdminVoiceCommController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [AdminVoiceCommController::class, 'edit'])->name('edit')->where('id', '[0-9]+');
+            Route::put('/{id}', [AdminVoiceCommController::class, 'update'])->name('update')->where('id', '[0-9]+');
+            Route::delete('/{id}', [AdminVoiceCommController::class, 'destroy'])->name('destroy')->where('id', '[0-9]+');
         });
 
         // Themes
