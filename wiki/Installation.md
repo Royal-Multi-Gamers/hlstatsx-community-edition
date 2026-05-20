@@ -39,7 +39,12 @@ npm run build
 
 # 7. Liaison du storage (si nécessaire)
 php artisan storage:link
+
+# 8. Migrations Laravel (obligatoire)
+php artisan migrate
 ```
+
+> **Important** : l'étape `migrate` initialise la version de l'application dans `hlstats_Options` (clé `version`). Sans cette étape, le panneau d'administration ne pourra pas détecter les mises à jour disponibles.
 
 ---
 
@@ -72,6 +77,30 @@ php artisan serve
 # Terminal 2 — Vite (hot reload)
 npm run dev
 ```
+
+---
+
+## Mises à jour
+
+Lors de chaque nouvelle version :
+
+```bash
+# 1. Extraire l'archive de la release et remplacer les fichiers
+# 2. Mettre à jour les dépendances PHP
+composer install --no-dev --optimize-autoloader
+
+# 3. Appliquer les migrations (met à jour la version dans hlstats_Options)
+php artisan migrate
+
+# 4. Rebuilder les assets
+npm run build
+
+# 5. Vider les caches
+php artisan optimize:clear
+php artisan optimize
+```
+
+> Chaque release inclut une migration qui met à jour la clé `version` dans `hlstats_Options`. Le tableau de bord admin compare automatiquement cette valeur avec la dernière release GitHub.
 
 ---
 
