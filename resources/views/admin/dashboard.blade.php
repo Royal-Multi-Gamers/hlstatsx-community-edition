@@ -1,5 +1,37 @@
 <x-layouts.admin title="Dashboard">
 
+    {{-- Update checker --}}
+    @if($versionInfo['upToDate'] === false)
+        <div style="background-color:#2d1f07; border:1px solid #f59e0b; border-radius:var(--border-radius-md); padding:14px 18px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:18px;">⚠</span>
+                <div>
+                    <span style="color:#fbbf24; font-weight:600; font-size:14px;">{{ __('Update available') }} — v{{ $versionInfo['latestTag'] }}</span>
+                    @if(!empty($versionInfo['latest']['name']))
+                        <span class="hlx-muted" style="font-size:12px; margin-left:8px;">{{ $versionInfo['latest']['name'] }}</span>
+                    @endif
+                    <div class="hlx-muted" style="font-size:12px; margin-top:2px;">{{ __('Installed:') }} v{{ $versionInfo['installed'] }}</div>
+                </div>
+            </div>
+            @if(!empty($versionInfo['latest']['html_url']))
+                <a href="{{ $versionInfo['latest']['html_url'] }}" target="_blank" rel="noopener"
+                   style="background-color:#f59e0b; color:#000; padding:6px 14px; border-radius:var(--border-radius-sm); font-size:13px; font-weight:600; text-decoration:none; white-space:nowrap;">
+                    {{ __('Download') }} ↗
+                </a>
+            @endif
+        </div>
+    @elseif($versionInfo['upToDate'] === true)
+        <div style="background-color:#0d2b1a; border:1px solid #22c55e; border-radius:var(--border-radius-md); padding:10px 18px; margin-bottom:20px; display:flex; align-items:center; gap:10px;">
+            <span style="font-size:16px;">✅</span>
+            <span style="color:#4ade80; font-size:13px;">{{ __('Up to date') }} — v{{ $versionInfo['installed'] }}</span>
+        </div>
+    @else
+        <div style="background-color:var(--bg-surface-alt); border:1px solid var(--border); border-radius:var(--border-radius-md); padding:10px 18px; margin-bottom:20px; display:flex; align-items:center; gap:10px;">
+            <span style="font-size:16px;">ℹ</span>
+            <span class="hlx-muted" style="font-size:13px;">{{ __('Version') }} v{{ $versionInfo['installed'] }} — {{ __('Could not check for updates') }}</span>
+        </div>
+    @endif
+
     <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:16px; margin-bottom:24px;">
         @foreach([
             ['label' => 'Players', 'value' => number_format($stats['players']), 'link' => route('admin.players.index')],

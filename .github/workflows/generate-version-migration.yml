@@ -1,0 +1,68 @@
+name: Generate Version Migration
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  create-migration:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.target_commitish }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Generate migration filename
+        id: filename
+        run: |
+          DATE=$(date -u +"%Y_%m_%d_%H%M%S")
+          SLUG=$(echo "${{ steps.version.outputs.version }}" | tr '.' '_')
+          FILENAME="${DATE}_set_app_version_${SLUG}.php"
+          echo "filename=$FILENAME" >> $GITHUB_OUTPUT
+          echo "Filename: $FILENAME"
+
+      - name: Create migration file
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          FILENAME="${{ steps.filename.outputs.filename }}"
+          cat > "database/migrations/${FILENAME}" << 'MIGRATION'
+          <?php
+
+          use Illuminate\Database\Migrations\Migration;
+          use Illuminate\Support\Facades\DB;
+
+          return new class extends Migration
+          {
+              public function up(): void
+              {
+                  DB::table('hlstats_Options')
+                      ->where('keyname', 'version')
+                      ->update(['value' => 'VERSION_PLACEHOLDER']);
+              }
+
+              public function down(): void {}
+          };
+          MIGRATION
+          sed -i "s/VERSION_PLACEHOLDER/${VERSION}/" "database/migrations/${FILENAME}"
+
+      - name: Commit and push migration
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "database/migrations/${{ steps.filename.outputs.filename }}"
+          git commit -m "chore: add version migration for v${{ steps.version.outputs.version }}"
+          git push origin HEAD:${{ github.event.release.target_commitish }}
