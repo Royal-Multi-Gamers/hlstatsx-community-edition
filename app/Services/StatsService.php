@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\LengthAwarePaginator as ManualPaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class StatsService
@@ -20,14 +21,16 @@ class StatsService
      */
     public function getGlobalStats(): array
     {
-        $players  = Player::ranked()->count();
-        $clans    = DB::table('hlstats_Clans')->where('hidden', 0)->count();
-        $games    = Game::visible()->count();
-        $servers  = Server::visible()->count();
-        $kills    = DB::table('hlstats_Players')->sum('kills');
-        $lastKill = EventKill::orderByDesc('eventTime')->value('eventTime');
+        return Cache::remember('global_stats', 300, function () {
+            $players  = Player::ranked()->count();
+            $clans    = DB::table('hlstats_Clans')->where('hidden', 0)->count();
+            $games    = Game::visible()->count();
+            $servers  = Server::visible()->count();
+            $kills    = DB::table('hlstats_Players')->sum('kills');
+            $lastKill = EventKill::orderByDesc('eventTime')->value('eventTime');
 
-        return compact('players', 'clans', 'games', 'servers', 'kills', 'lastKill');
+            return compact('players', 'clans', 'games', 'servers', 'kills', 'lastKill');
+        });
     }
 
     /**

@@ -24,37 +24,41 @@ class HomeController extends Controller
 
         $games = Game::visible()
             ->with(['servers' => fn($q) => $q->visible()])
+            ->get();
+
+        $gameCodes = $games->pluck('code')->all();
+
+        // Batch: top player per game — 1 query instead of N
+        $topPlayersByGame = DB::table('hlstats_Players')
+            ->whereIn('game', $gameCodes)
+            ->where('hideranking', 0)
+            ->orderByDesc('skill')
+            ->get(['playerId', 'lastName', 'country', 'flag', 'game'])
+            ->unique('game')
+            ->keyBy('game');
+
+        // Batch: top clan per game — 1 query instead of N
+        $topClansByGame = DB::table('hlstats_Clans as c')
+            ->join('hlstats_Players as p', function ($join) {
+                $join->on('p.clan', '=', 'c.clanId')
+                     ->where('p.hideranking', '=', 0);
+            })
+            ->whereIn('c.game', $gameCodes)
+            ->where('c.hidden', 0)
+            ->groupBy('c.clanId', 'c.name', 'c.tag', 'c.game')
+            ->selectRaw('c.clanId, c.name, c.tag, c.game, SUM(p.kills) AS total_kills')
+            ->orderByDesc('total_kills')
             ->get()
-            ->map(function ($game) {
-                $topPlayer = DB::table('hlstats_Players')
-                    ->where('game', $game->code)
-                    ->where('hideranking', 0)
-                    ->orderByDesc('skill')
-                    ->first(['playerId', 'lastName', 'country', 'flag']);
+            ->unique('game')
+            ->keyBy('game');
 
-                $topClan = DB::table('hlstats_Clans as c')
-                    ->join('hlstats_Players as p', function ($join) use ($game) {
-                        $join->on('p.clan', '=', 'c.clanId')
-                             ->where('p.game', '=', $game->code)
-                             ->where('p.hideranking', '=', 0);
-                    })
-                    ->where('c.game', $game->code)
-                    ->where('c.hidden', 0)
-                    ->groupBy('c.clanId', 'c.name', 'c.tag')
-                    ->orderByDesc(DB::raw('SUM(p.kills)'))
-                    ->first(['c.clanId', 'c.name', 'c.tag']);
-
-                $connectedPlayers = $game->servers->sum('act_players');
-                $maxPlayers       = $game->servers->sum('max_players');
-
-                return [
-                    'game'             => $game,
-                    'topPlayer'        => $topPlayer,
-                    'topClan'          => $topClan,
-                    'connectedPlayers' => $connectedPlayers,
-                    'maxPlayers'       => $maxPlayers,
-                ];
-            });
+        $games = $games->map(fn($game) => [
+            'game'             => $game,
+            'topPlayer'        => $topPlayersByGame[$game->code] ?? null,
+            'topClan'          => $topClansByGame[$game->code] ?? null,
+            'connectedPlayers' => $game->servers->sum('act_players'),
+            'maxPlayers'       => $game->servers->sum('max_players'),
+        ]);
 
         $serverMarkers = Server::visible()
             ->whereNotNull('lat')->where('lat', '!=', 0)

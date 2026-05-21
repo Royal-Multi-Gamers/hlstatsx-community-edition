@@ -83,32 +83,28 @@ class ClanController extends Controller
             ->orderByDesc('kills')
             ->get();
 
-        // --- Maps tab ---
+        // --- Maps tab — single query with conditional aggregation ---
         $maps = DB::table('hlstats_Events_Frags as f')
-            ->join('hlstats_Players as kp', 'f.killerId', '=', 'kp.playerId')
-            ->where('kp.clan', $id)
+            ->leftJoin('hlstats_Players as kp', 'f.killerId', '=', 'kp.playerId')
+            ->leftJoin('hlstats_Players as vp', 'f.victimId', '=', 'vp.playerId')
+            ->where(fn($q) => $q->where('kp.clan', $id)->orWhere('vp.clan', $id))
             ->groupBy('f.map')
-            ->selectRaw("IF(f.map='','(Unaccounted)',f.map) AS map, COUNT(*) AS kills,
-                SUM(f.headshot=1) AS headshots,
-                ROUND(COUNT(*)/?*100,2) AS kpercent,
-                IF(COUNT(*)>0, ROUND(SUM(f.headshot=1)/COUNT(*),4), 0) AS hpk", [$totalKills])
+            ->selectRaw("
+                IF(f.map='','(Unaccounted)',f.map)                                     AS map,
+                SUM(kp.clan = ?)                                                       AS kills,
+                SUM(vp.clan = ?)                                                       AS deaths,
+                SUM(kp.clan = ? AND f.headshot = 1)                                    AS headshots,
+                ROUND(SUM(kp.clan = ?) / ? * 100, 2)                                  AS kpercent,
+                IF(SUM(kp.clan = ?) > 0,
+                    ROUND(SUM(kp.clan = ? AND f.headshot = 1) / SUM(kp.clan = ?), 4),
+                    0)                                                                 AS hpk
+            ", [$id, $id, $id, $id, $totalKills, $id, $id, $id])
             ->orderByDesc('kills')
-            ->get();
-
-        // add deaths per map
-        $deathMap = DB::table('hlstats_Events_Frags as f')
-            ->join('hlstats_Players as vp', 'f.victimId', '=', 'vp.playerId')
-            ->where('vp.clan', $id)
-            ->groupBy('f.map')
-            ->selectRaw("IF(f.map='','(Unaccounted)',f.map) AS map, COUNT(*) AS deaths")
-            ->get()->keyBy('map');
-
-        $maps = $maps->map(function ($row) use ($deathMap) {
-            $deaths       = $deathMap[$row->map]->deaths ?? 0;
-            $row->deaths  = $deaths;
-            $row->kd      = $deaths > 0 ? round($row->kills / $deaths, 2) : $row->kills;
-            return $row;
-        });
+            ->get()
+            ->map(function ($row) {
+                $row->kd = $row->deaths > 0 ? round($row->kills / $row->deaths, 2) : $row->kills;
+                return $row;
+            });
 
         // --- Teams tab ---
         $totalTeamJoins = DB::table('hlstats_Events_ChangeTeam as ct')

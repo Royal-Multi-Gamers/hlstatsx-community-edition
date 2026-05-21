@@ -13,11 +13,16 @@
     $showDiscord  = \App\Models\Option::get('nav_discord', '1') === '1' && !empty($discordUrl);
     $showLang     = \App\Models\Option::get('nav_lang_switcher', '1') === '1';
 
-    // Detect available locales from lang/*.json files
-    $availableLocales = collect(glob(lang_path('*.json')))
-        ->map(fn($f) => pathinfo($f, PATHINFO_FILENAME))
-        ->sort()
-        ->values();
+    // Detect available locales from lang/*.json files (cached 24h)
+    $availableLocales = collect(
+        \Illuminate\Support\Facades\Cache::remember('available_locales', 86400, fn() =>
+            collect(glob(lang_path('*.json')))
+                ->map(fn($f) => pathinfo($f, PATHINFO_FILENAME))
+                ->sort()
+                ->values()
+                ->all()
+        )
+    );
 
     // Map locale code → country flag code
     $flagMap = [
