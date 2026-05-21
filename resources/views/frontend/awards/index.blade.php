@@ -1,5 +1,5 @@
 <x-layouts.app
-    :title="'Awards — ' . config('services.hlstats.site_name')"
+    :title="__('Awards') . ' — ' . config('services.hlstats.site_name')"
     :breadcrumb="['HLStatsX' => route('home'), 'Awards' => null]"
     :gameNav="$game"
     activeTab="awards">
@@ -24,7 +24,7 @@
         @if($dailyAwards->isEmpty())
             <div class="hlx-muted" style="padding:20px; text-align:center;">{{ __('No daily awards configured.') }}</div>
         @else
-            <div style="margin-bottom:6px; font-size:11px; color:var(--text-secondary);">{{ __('Daily Awards') }} — {{ now()->format('l d F') }}</div>
+            <div style="margin-bottom:6px; font-size:11px; color:var(--text-secondary);">{{ __('Daily Awards') }} — {{ now()->locale(app()->getLocale())->translatedFormat('l d F') }}</div>
             <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:10px;">
                 @foreach($dailyAwards as $award)
                     @php

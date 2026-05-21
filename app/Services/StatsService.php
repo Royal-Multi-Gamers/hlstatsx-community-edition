@@ -53,6 +53,16 @@ class StatsService
             ->forGame($game)
             ->ranked();
 
+        // kd_ratio, hs_percent, accuracy are not real columns — compute them
+        $computedSorts = ['kd_ratio', 'hs_percent', 'accuracy'];
+        if (in_array($sort, $computedSorts)) {
+            $query->selectRaw('hlstats_Players.*,
+                ROUND(IF(deaths = 0, kills, kills / deaths), 2)          AS kd_ratio,
+                ROUND(IF(kills  = 0, 0, headshots / kills * 100), 2)     AS hs_percent,
+                ROUND(IF(shots  = 0, 0, hits / shots * 100), 1)          AS accuracy'
+            );
+        }
+
         if (!empty($filters['search'])) {
             $search = $filters['search'];
             $query->where('lastName', 'like', '%' . $search . '%');
@@ -76,10 +86,10 @@ class StatsService
         int $period
     ): ManualPaginator {
         $dateFilter = match ($period) {
-            1 => "h.eventTime >= CURDATE() - INTERVAL 1 DAY AND h.eventTime < CURDATE()",
-            2 => "YEARWEEK(h.eventTime, 1) = YEARWEEK(CURDATE() - INTERVAL 1 WEEK, 1) AND WEEKDAY(h.eventTime) IN (5,6)",
-            3 => "h.eventTime >= NOW() - INTERVAL 7 DAY",
-            4 => "h.eventTime >= NOW() - INTERVAL 28 DAY",
+            1 => "a.eventTime >= CURDATE() - INTERVAL 1 DAY AND a.eventTime < CURDATE()",
+            2 => "YEARWEEK(a.eventTime, 1) = YEARWEEK(CURDATE() - INTERVAL 1 WEEK, 1) AND WEEKDAY(a.eventTime) IN (5,6)",
+            3 => "a.eventTime >= NOW() - INTERVAL 7 DAY",
+            4 => "a.eventTime >= NOW() - INTERVAL 28 DAY",
             default => "1=1",
         };
 

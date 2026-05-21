@@ -1,5 +1,5 @@
 <x-layouts.app
-    :title="'Map Statistics — ' . config('services.hlstats.site_name')"
+    :title="__('Map Statistics') . ' — ' . config('services.hlstats.site_name')"
     :breadcrumb="['HLStatsX' => route('home'), 'Map Statistics' => null]"
     :gameNav="$game"
     activeTab="maps">

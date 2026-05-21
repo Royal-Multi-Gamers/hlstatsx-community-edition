@@ -1,0 +1,60 @@
+=== E:\GITHUB\Royal-Multi-Gamers\hlstatsx-community-edition\resources\views\frontend\chat\index.blade.php ===
+<x-layouts.app
+    :title="'Chat Log — ' . config('services.hlstats.site_name')"
+    :breadcrumb="['HLStatsX' => route('home'), 'Chat' => null]"
+
+=== E:\GITHUB\Royal-Multi-Gamers\hlstatsx-community-edition\resources\views\frontend\weapons\index.blade.php ===
+<x-layouts.app
+    :title="'Weapon Statistics — ' . config('services.hlstats.site_name')"
+    :breadcrumb="['HLStatsX' => route('home'), 'Weapon Statistics' => null]"
+
+=== E:\GITHUB\Royal-Multi-Gamers\hlstatsx-community-edition\resources\views\frontend\bans\index.blade.php ===
+<x-layouts.app
+    :title="'Bans — ' . config('services.hlstats.site_name')"
+    :breadcrumb="['HLStatsX' => route('home'), 'Bans' => null]"
+
+=== E:\GITHUB\Royal-Multi-Gamers\hlstatsx-community-edition\resources\views\frontend\voicecomm\index.blade.php ===
+<x-layouts.app
+    :title="'Voice Servers — ' . config('services.hlstats.site_name')"
+    :breadcrumb="['HLStatsX' => route('home'), 'Voice Servers' => null]"
+
+=== E:\GITHUB\Royal-Multi-Gamers\hlstatsx-community-edition\resources\views\frontend\awards\index.blade.php ===
+<x-layouts.app
+    :title="'Awards — ' . config('services.hlstats.site_name')"
+    :breadcrumb="['HLStatsX' => route('home'), 'Awards' => null]"
+
+=== E:\GITHUB\Royal-Multi-Gamers\hlstatsx-community-edition\resources\views\frontend\servers\index.blade.php ===
+<x-layouts.app
+    :title="'Servers — ' . config('services.hlstats.site_name')"
+    :breadcrumb="['HLStatsX' => route('home'), 'Servers' => null]"
+
+=== E:\GITHUB\Royal-Multi-Gamers\hlstatsx-community-edition\resources\views\frontend\actions\index.blade.php ===
+<x-layouts.app
+    :title="'Action Statistics — ' . config('services.hlstats.site_name')"
+    :breadcrumb="['HLStatsX' => route('home'), 'Action Statistics' => null]"
+
+=== E:\GITHUB\Royal-Multi-Gamers\hlstatsx-community-edition\resources\views\frontend\search.blade.php ===
+<x-layouts.app
+    :title="'Search — ' . config('services.hlstats.site_name')"
+    :breadcrumb="['HLStatsX' => route('home'), 'Search' => null]">
+
+=== E:\GITHUB\Royal-Multi-Gamers\hlstatsx-community-edition\resources\views\frontend\clans\index.blade.php ===
+<x-layouts.app
+    :title="'Clans — ' . config('services.hlstats.site_name')"
+    :breadcrumb="['HLStatsX' => route('home'), 'Clans' => null]"
+
+=== E:\GITHUB\Royal-Multi-Gamers\hlstatsx-community-edition\resources\views\frontend\maps\index.blade.php ===
+<x-layouts.app
+    :title="'Map Statistics — ' . config('services.hlstats.site_name')"
+    :breadcrumb="['HLStatsX' => route('home'), 'Map Statistics' => null]"
+
+=== E:\GITHUB\Royal-Multi-Gamers\hlstatsx-community-edition\resources\views\frontend\countries\index.blade.php ===
+<x-layouts.app
+    :title="'Country Rankings — ' . config('services.hlstats.site_name')"
+    :breadcrumb="['HLStatsX' => route('home'), 'Countries' => null]"
+
+=== E:\GITHUB\Royal-Multi-Gamers\hlstatsx-community-edition\resources\views\frontend\players\show.blade.php ===
+<x-layouts.app
+    :title="($player->lastName ?? 'Player') . ' â€” ' . config('services.hlstats.site_name')"
+    :breadcrumb="['HLStatsX' => route('home'), 'Players' => route('players.index', ['game' => $player->game]), $player->lastName => null]"
+

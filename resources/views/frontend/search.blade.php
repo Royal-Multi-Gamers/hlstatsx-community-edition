@@ -1,5 +1,5 @@
 <x-layouts.app
-    :title="'Search — ' . config('services.hlstats.site_name')"
+    :title="__('Search') . ' — ' . config('services.hlstats.site_name')"
     :breadcrumb="['HLStatsX' => route('home'), 'Search' => null]">
 
     {{-- Search form --}}

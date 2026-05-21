@@ -1,5 +1,5 @@
 <x-layouts.app
-    :title="'Country Rankings — ' . config('services.hlstats.site_name')"
+    :title="__('Country Rankings') . ' — ' . config('services.hlstats.site_name')"
     :breadcrumb="['HLStatsX' => route('home'), 'Countries' => null]"
     :gameNav="$game"
     activeTab="countries">

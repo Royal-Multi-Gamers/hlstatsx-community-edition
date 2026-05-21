@@ -1,5 +1,5 @@
 <x-layouts.app
-    :title="'Voice Servers — ' . config('services.hlstats.site_name')"
+    :title="__('Voice Servers') . ' — ' . config('services.hlstats.site_name')"
     :breadcrumb="['HLStatsX' => route('home'), 'Voice Servers' => null]"
     activeTab="voicecomm">
 

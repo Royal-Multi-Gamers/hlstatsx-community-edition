@@ -1,5 +1,5 @@
 <x-layouts.app
-    :title="'Player Rankings — ' . config('services.hlstats.site_name')"
+    :title="__('Player Rankings') . ' — ' . config('services.hlstats.site_name')"
     :breadcrumb="['HLStatsX' => route('home'), 'Players' => null]"
     :gameNav="$game"
     activeTab="players">
@@ -19,15 +19,15 @@
         <input type="hidden" name="game" value="{{ $game }}">
 
         <div style="display:flex; align-items:center; gap:8px;">
-            <span class="hlx-muted" style="font-size:var(--font-size-sm);">&gt;&gt; Find a player:</span>
+            <span class="hlx-muted" style="font-size:var(--font-size-sm);">&gt;&gt; {{ __('Find a player') }}:</span>
             <input type="text" name="search" value="{{ $search }}"
                    style="background-color:var(--bg-surface); color:var(--text-primary); border:1px solid var(--border); border-radius:var(--border-radius-sm); padding:3px 8px; font-size:var(--font-size-sm); width:180px;"
-                   placeholder="Player name...">
-            <button type="submit" class="hlx-btn-green">Search</button>
+                   placeholder="{{ __('Player name...') }}">
+            <button type="submit" class="hlx-btn-green">{{ __('Search') }}</button>
         </div>
 
         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <span class="hlx-muted" style="font-size:var(--font-size-sm);">&gt;&gt; Period:</span>
+            <span class="hlx-muted" style="font-size:var(--font-size-sm);">&gt;&gt; {{ __('Period') }}:</span>
             <select name="period"
                     style="background-color:var(--bg-surface); color:var(--text-primary); border:1px solid var(--border); border-radius:var(--border-radius-sm); padding:3px 6px; font-size:var(--font-size-sm);">
                 <option value="0" @selected(($period ?? 0) == 0)>{{ __('Global') }}</option>
@@ -37,14 +37,19 @@
                 <option value="4" @selected(($period ?? 0) == 4)>{{ __('Last 28 Days') }}</option>
             </select>
 
-            <span class="hlx-muted" style="font-size:var(--font-size-sm);">&gt;&gt; Ranking View:</span>
-            <select name="view"
+            <span class="hlx-muted" style="font-size:var(--font-size-sm);">&gt;&gt; {{ __('Ranking View') }}:</span>
+            <select name="sort"
                     style="background-color:var(--bg-surface); color:var(--text-primary); border:1px solid var(--border); border-radius:var(--border-radius-sm); padding:3px 6px; font-size:var(--font-size-sm);">
-                <option value="total" @selected($view === 'total')>Total Ranking</option>
-                <option value="skill" @selected($view === 'skill')>By Skill</option>
-                <option value="kills" @selected($view === 'kills')>By Kills</option>
+                <option value="skill"           @selected($sort === 'skill')>{{ __('By Skill') }}</option>
+                <option value="kills"           @selected($sort === 'kills')>{{ __('By Kills') }}</option>
+                <option value="deaths"          @selected($sort === 'deaths')>{{ __('By Deaths') }}</option>
+                <option value="headshots"       @selected($sort === 'headshots')>{{ __('By Headshots') }}</option>
+                <option value="kd_ratio"        @selected($sort === 'kd_ratio')>{{ __('By K/D') }}</option>
+                <option value="hs_percent"      @selected($sort === 'hs_percent')>{{ __('By HS%') }}</option>
+                <option value="accuracy"        @selected($sort === 'accuracy')>{{ __('By Accuracy') }}</option>
+                <option value="connection_time" @selected($sort === 'connection_time')>{{ __('By Play Time') }}</option>
             </select>
-            <button type="submit" class="hlx-btn-green">View</button>
+            <button type="submit" class="hlx-btn-green">{{ __('View') }}</button>
         </div>
     </form>
 

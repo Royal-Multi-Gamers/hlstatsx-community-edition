@@ -1,5 +1,5 @@
 <x-layouts.app
-    :title="($player->lastName ?? 'Player') . ' â€” ' . config('services.hlstats.site_name')"
+    :title="($player->lastName ?? __('Player')) . ' — ' . config('services.hlstats.site_name')"
     :breadcrumb="['HLStatsX' => route('home'), 'Players' => route('players.index', ['game' => $player->game]), $player->lastName => null]"
     :gameNav="$player->game"
     activeTab="players">
@@ -456,8 +456,9 @@
                             @if($playerGlobalAwards->isEmpty())
                                 <div class="hlx-muted" style="font-size:12px;">{{ __('No global awards.') }}</div>
                             @else
+                                <div style="max-height:300px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--border) transparent;">
                                 <table style="width:100%; border-collapse:collapse; font-size:11px;">
-                                    <thead>
+                                    <thead style="position:sticky; top:0; background:var(--bg-surface); z-index:1;">
                                         <tr>
                                             <th style="text-align:left; padding:2px 6px; color:var(--text-secondary); border-bottom:1px solid var(--border);">{{ __('Award') }}</th>
                                             <th style="padding:2px 6px; color:var(--text-secondary); border-bottom:1px solid var(--border);">{{ __('Count') }}</th>
@@ -474,6 +475,7 @@
                                         @endforeach
                                     </tbody>
                                 </table>
+                                </div>
                             @endif
                         </div>
                     </div>

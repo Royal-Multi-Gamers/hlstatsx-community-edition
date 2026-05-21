@@ -6,15 +6,15 @@
 
     {{-- Participating Servers Header Stats --}}
     <div class="hlx-muted" style="margin-bottom:12px; font-size:var(--font-size-sm); padding:4px 0;">
-        Tracking <strong class="hlx-text">{{ $totalPlayers }}</strong> players
-        with <strong class="hlx-text">{{ number_format($totalKills) }}</strong> kills
-        on <strong class="hlx-text">{{ $servers->count() }}</strong> servers
+        {{ __('Tracking') }} <strong class="hlx-text">{{ $totalPlayers }}</strong> {{ __('players') }}
+        {{ __('with') }} <strong class="hlx-text">{{ number_format($totalKills) }}</strong> {{ __('kills') }}
+        {{ __('on') }} <strong class="hlx-text">{{ $servers->count() }}</strong> {{ __('servers') }}
     </div>
 
     {{-- World Map --}}
     @if($mapMarkers->isNotEmpty())
         <div class="hlx-surface" style="margin-bottom:16px; border:1px solid var(--border); border-radius:var(--border-radius-md); overflow:hidden;">
-            <x-ui.section-title title="Server Locations" />
+            <x-ui.section-title :title="__('Server Locations')" />
             <div style="padding:8px;">
                 <x-maps.world-map :markers="$mapMarkers->toArray()" :playerMarkers="$playerMarkers->toArray()" :tileUrl="$tileUrl" />
             </div>
@@ -90,9 +90,9 @@
 
             {{-- Online players --}}
             <div style="padding:0 8px 8px;">
-                <div class="hlx-section-title" style="font-size:var(--font-size-sm); margin-bottom:4px;">Online Players</div>
+                <div class="hlx-section-title" style="font-size:var(--font-size-sm); margin-bottom:4px;">{{ __('Online Players') }}</div>
                 @if($row['players']->isEmpty())
-                    <p class="hlx-muted" style="padding:8px; font-size:var(--font-size-sm);">No players online.</p>
+                    <p class="hlx-muted" style="padding:8px; font-size:var(--font-size-sm);">{{ __('No players online.') }}</p>
                 @else
                     <table class="hlx-table">
                         <thead>
