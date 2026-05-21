@@ -10,13 +10,18 @@ class AdminOptionsController extends Controller
 {
     private const GROUPS = [
         'Site Settings' => [
-            'sitename'           => ['label' => 'Site Name',                   'type' => 'text'],
-            'siteurl'            => ['label' => 'Site URL',                    'type' => 'text'],
-            'contact'            => ['label' => 'Contact URL',                 'type' => 'text'],
-            'forum_address'      => ['label' => 'Forum URL',                   'type' => 'text'],
-            'sourcebans_address' => ['label' => 'SourceBans URL',              'type' => 'text'],
-            'nav_globalchat'     => ['label' => 'Show Chat nav-link',          'type' => 'select', 'options' => ['1' => 'Show', '0' => 'Hide']],
-            'nav_cheaters'       => ['label' => 'Show Banned Players nav-link','type' => 'select', 'options' => ['1' => 'Show', '0' => 'Hide']],
+            'sitename'           => ['label' => 'Site Name',                        'type' => 'text'],
+            'siteurl'            => ['label' => 'Site URL',                         'type' => 'text'],
+            'contact'            => ['label' => 'Contact URL',                      'type' => 'text'],
+            'forum_address'      => ['label' => 'Forum URL',                        'type' => 'text'],
+            'sourcebans_address' => ['label' => 'SourceBans URL',                   'type' => 'text'],
+            'steam_url'          => ['label' => 'Steam URL',                        'type' => 'text'],
+            'discord_url'        => ['label' => 'Discord URL',                      'type' => 'text'],
+            'nav_globalchat'     => ['label' => 'Show Chat nav-link',               'type' => 'select', 'options' => ['1' => 'Show', '0' => 'Hide']],
+            'nav_cheaters'       => ['label' => 'Show Banned Players nav-link',     'type' => 'select', 'options' => ['1' => 'Show', '0' => 'Hide']],
+            'nav_steam'          => ['label' => 'Show Steam link',                  'type' => 'select', 'options' => ['1' => 'Show', '0' => 'Hide']],
+            'nav_discord'        => ['label' => 'Show Discord link',                'type' => 'select', 'options' => ['1' => 'Show', '0' => 'Hide']],
+            'nav_lang_switcher'  => ['label' => 'Show language switcher (EN / FR)', 'type' => 'select', 'options' => ['1' => 'Show', '0' => 'Hide']],
         ],
         'Awards Settings' => [
             'gamehome_show_awards' => ['label' => 'Show daily awards on game homepage', 'type' => 'select', 'options' => ['1' => 'Show', '0' => 'Hide']],

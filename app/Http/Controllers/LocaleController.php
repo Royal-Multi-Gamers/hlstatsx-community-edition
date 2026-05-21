@@ -8,7 +8,10 @@ class LocaleController extends Controller
 {
     public function switch(Request $request, string $locale)
     {
-        $allowed = ['en', 'fr'];
+        $allowed = collect(glob(lang_path('*.json')))
+            ->map(fn($f) => pathinfo($f, PATHINFO_FILENAME))
+            ->values()
+            ->all();
 
         if (in_array($locale, $allowed)) {
             session(['locale' => $locale]);

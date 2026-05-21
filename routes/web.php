@@ -23,7 +23,7 @@ use App\Http\Controllers\LocaleController;
 use Illuminate\Support\Facades\Route;
 
 // Language switch
-Route::get('/language/{locale}', [LocaleController::class, 'switch'])->name('language.switch');
+Route::post('/language/{locale}', [LocaleController::class, 'switch'])->name('language.switch');
 
 // Public frontend
 Route::get('/', [HomeController::class, 'index'])->name('home');
