@@ -18,7 +18,7 @@
                 @forelse($messages as $msg)
                     <tr>
                         <td class="hlx-muted" style="font-family:var(--font-family-mono); font-size:var(--font-size-sm); white-space:nowrap;">
-                            {{ \Carbon\Carbon::parse($msg->event_time)->format('Y-m-d H:i:s') }}
+                            {{ \Carbon\Carbon::parse($msg->eventTime)->format('Y-m-d H:i:s') }}
                         </td>
                         <td>
                             @if($msg->player)
@@ -31,7 +31,7 @@
                             {{ $msg->message }}
                         </td>
                         <td class="hlx-muted" style="font-size:var(--font-size-sm);">
-                            {{ $msg->say_team ? 'Team' : 'All' }}
+                            {{ $msg->messageMode ? 'Team' : 'All' }}
                         </td>
                     </tr>
                 @empty
